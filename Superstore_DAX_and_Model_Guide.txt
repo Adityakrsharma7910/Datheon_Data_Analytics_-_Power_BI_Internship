@@ -1,0 +1,43 @@
+SUPERSTORE SALES — POWER BI MODEL & DAX STARTER
+
+MODEL RELATIONSHIPS (single direction, dimension -> fact):
+Dim Date[Date] (1) -> Fact Orders[Order Date] (*)
+Dim Customer[Customer ID] (1) -> Fact Orders[Customer ID] (*)
+Dim Product[Product ID] (1) -> Fact Orders[Product ID] (*)
+
+Use Dim Date[Date] as the date slicer. Mark Dim Date as the date table using Dim Date[Date].
+Sort Dim Date[Month] by Dim Date[Month Number] and Dim Date[Year-Month] by Dim Date[Year-Month Sort].
+If you add a second date relationship for Ship Date, keep it inactive unless you explicitly need shipping-date analysis.
+
+MEASURES (create with Modeling > New measure):
+Total Sales = SUM('Fact Orders'[Sales])
+
+Total Profit = SUM('Fact Orders'[Profit])
+
+Total Orders = DISTINCTCOUNT('Fact Orders'[Order ID])
+
+Total Quantity = SUM('Fact Orders'[Quantity])
+
+Profit Margin % = DIVIDE([Total Profit], [Total Sales], 0)
+
+Sales Previous Year =
+CALCULATE([Total Sales], DATEADD('Dim Date'[Date], -1, YEAR))
+
+YoY Sales Growth % =
+DIVIDE([Total Sales] - [Sales Previous Year], [Sales Previous Year], 0)
+
+Average Discount = AVERAGE('Fact Orders'[Discount])
+
+VISUALS:
+1. KPI cards: [Total Sales], [Total Profit], [Total Orders], [Profit Margin %].
+2. Line chart: Dim Date[Year-Month] on X-axis, [Total Sales] on Y-axis.
+3. Treemap: Dim Product[Category] > Dim Product[Sub-Category], [Total Sales] as values.
+4. Matrix: Category and Sub-Category rows; [Total Sales], [Total Profit], [Profit Margin %] values.
+5. Bar chart: Dim Customer[Region] with [Total Sales] and [Total Profit].
+6. Slicers: Dim Date[Date], Dim Customer[Region], Dim Customer[Segment], Dim Product[Category].
+7. Optional scatter plot: Discount vs Profit by product/sub-category to inspect discount sensitivity.
+
+IMPORTANT:
+- The CSV appears to be a Superstore-style dataset with 10,800 rows. Validate whether its date range and values match the version required by your assignment.
+- YoY growth needs a complete date table and comparable prior-year dates; it may be blank/zero for the earliest year or when no prior-year sales exist.
+- Distinct order count is safer than counting rows because an order can contain multiple product lines.
