@@ -1,0 +1,45 @@
+// ===== Power Query (M): load & clean =====
+// let Source = Excel.Workbook(File.Contents("financial_sample.xlsx"), null, true),
+//     T = Source{[Item="Sheet1",Kind="Sheet"]}[Data],
+//     H = Table.PromoteHeaders(T),
+//     R = Table.RenameColumns(H,{{" Sales","Net Sales"}}),          // header has a leading space
+//     B = Table.ReplaceValue(R,null,"None",Replacer.ReplaceValue,{"Discount Band"}) // "None" is read as null
+// in B
+// Model: 'Calendar' (CALENDARAUTO) 1:* Financials[Date]; Budget table 1:* on Segment/Country/Product
+
+Gross Sales  = SUM ( Financials[Gross Sales] )
+Discounts    = SUM ( Financials[Discounts] )
+Net Sales    = SUM ( Financials[Net Sales] )
+COGS         = SUM ( Financials[COGS] )
+Profit       = SUM ( Financials[Profit] )
+
+Gross Profit %  = DIVIDE ( [Profit], [Net Sales] )
+COGS Ratio      = DIVIDE ( [COGS], [Net Sales] )
+Discount Rate   = DIVIDE ( [Discounts], [Gross Sales] )
+Segment Margin  = DIVIDE ( [Profit], CALCULATE ( [Net Sales], REMOVEFILTERS ( Financials[Product], Financials[Country] ) ) )
+Segment Share of Profit = DIVIDE ( [Profit], CALCULATE ( [Profit], REMOVEFILTERS ( Financials[Segment] ) ) )
+
+// ---- Budget (source has none: create a Budget table with Year, Segment, Country, Product, Budget Net Sales) ----
+Budget Net Sales = SUM ( Budget[Budget Net Sales] )
+Net Sales PY     = CALCULATE ( [Net Sales], SAMEPERIODLASTYEAR ( 'Calendar'[Date] ) )
+Variance $       = [Net Sales] - [Budget Net Sales]
+Variance %       = DIVIDE ( [Variance $], [Budget Net Sales] )
+
+// ---- Scenario sliders (What-if parameters -> generates Volume Delta[Value], etc.) ----
+// Volume Delta = GENERATESERIES(-0.3,0.3,0.05); Discount Delta = GENERATESERIES(-0.5,0.5,0.05); Cost Delta = GENERATESERIES(-0.2,0.3,0.05)
+Vol  = SELECTEDVALUE ( 'Volume Delta'[Volume Delta], 0 )
+Disc = SELECTEDVALUE ( 'Discount Delta'[Discount Delta], 0 )
+Cost = SELECTEDVALUE ( 'Cost Delta'[Cost Delta], 0 )
+Scn Gross    = [Gross Sales] * ( 1 + [Vol] )
+Scn Discount = [Discounts] * ( 1 + [Vol] ) * ( 1 + [Disc] )
+Scn Net      = [Scn Gross] - [Scn Discount]
+Scn COGS     = [COGS] * ( 1 + [Vol] ) * ( 1 + [Cost] )
+Scn Profit   = [Scn Net] - [Scn COGS]
+Scn Gross Profit % = DIVIDE ( [Scn Profit], [Scn Net] )
+
+// ---- Waterfall helper: disconnected table 'Steps'[Step],[Order] = Gross Sales, Discounts, Net Sales, COGS, Profit ----
+Waterfall Value =
+SWITCH ( SELECTEDVALUE ( Steps[Step] ),
+    "Gross Sales", [Scn Gross],  "Discounts", -[Scn Discount],
+    "Net Sales",   [Scn Net],    "COGS",      -[Scn COGS],
+    "Profit",      [Scn Profit] )
