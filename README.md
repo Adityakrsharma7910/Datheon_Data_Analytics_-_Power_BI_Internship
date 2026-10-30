@@ -184,8 +184,7 @@ Datheon_Data_Analytics_-_Power_BI_Internship/
 - The financial HTML dashboard is a standalone interactive deliverable; it is not a Power BI `.pbix` file.
 - The Superstore PDF is a supporting executive report, not an exported Power BI dashboard.
 - The repository contains a Power BI starter model and DAX guidance, but a finished `.pbix` file is not currently included.
-- Reported metrics and findings are based on the documented analysis and should be revalidated if the underlying data or transformation logic changes.
-
+- 
 ## 🎯 Conclusion
 
 These projects demonstrate how business data can be prepared, analyzed, and presented to answer practical questions about financial performance, retail profitability, and customer retention.
