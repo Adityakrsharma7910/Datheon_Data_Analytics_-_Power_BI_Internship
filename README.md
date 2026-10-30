@@ -1,4 +1,4 @@
-# Datheon Data Analytics & Power BI Internship
+# Data Analytics & Power BI Internship
 
 A collection of business analytics projects focused on financial performance, sales and profitability analysis, and customer churn analysis. This repository demonstrates practical data analytics workflows using cleaned datasets, business KPIs, DAX measures, data modeling, and interactive reporting.
 
@@ -197,4 +197,4 @@ The overall objective is to convert raw or prepared datasets into useful busines
 **Project:** Datheon Data Analytics & Power BI Internship  
 **GitHub Repository:** [View Project Repository](https://github.com/Adityakrsharma7910/Datheon_Data_Analytics_-_Power_BI_Internship)
 
-*Created for educational purposes and practical analytics skill development.*
+
